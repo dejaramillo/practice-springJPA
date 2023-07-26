@@ -1,12 +1,13 @@
 package com.platzi.pizza.web.controller;
 
 import com.platzi.pizza.persistence.entity.OrderEntity;
+import com.platzi.pizza.persistence.projection.OrderSummary;
 import com.platzi.pizza.service.OrderService;
+import com.platzi.pizza.service.dto.RandomOrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,12 +15,46 @@ import java.util.List;
 @RequestMapping("/api/orders")
 public class OrderController {
 
+
+    private  final OrderService orderService;
+
     @Autowired
-    private OrderService orderService;
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @GetMapping
     public ResponseEntity<List<OrderEntity>> getAll(){
-        var response = orderService.getAll();
+        var response = this.orderService.getAll();
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("/today")
+    public ResponseEntity<List<OrderEntity>> getTodayOrders(){
+        var response = this.orderService.getTodayOrders();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/outside")
+    public ResponseEntity<List<OrderEntity>> getOutsideOrders(){
+        var response = this.orderService.getOutSideOrders();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/customer/{idCustomer}")
+    public ResponseEntity<List<OrderEntity>> getCustomerOrders(@PathVariable String idCustomer){
+        var response = this.orderService.getCustomerOrders(idCustomer);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/summary/{orderId}")
+    public ResponseEntity<OrderSummary> getSummary(@PathVariable Integer orderId){
+        return ResponseEntity.ok().body(this.orderService.getSummary(orderId));
+    }
+
+    @PostMapping("/random")
+    public ResponseEntity<Boolean> saveRandomOrder(@RequestBody RandomOrderDto dto){
+        return ResponseEntity.ok().body(this.orderService.saveRandomOrder(dto));
+    }
+
 }
